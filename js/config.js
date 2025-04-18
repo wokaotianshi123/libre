@@ -2,7 +2,7 @@
 const PROXY_URL = '/proxy/';    // 适用于 Cloudflare, Netlify (带重写), Vercel (带重写)
 // const HOPLAYER_URL = 'https://hoplayer.com/index.html';
 const SEARCH_HISTORY_KEY = 'videoSearchHistory';
-const MAX_HISTORY_ITEMS = 5;
+const MAX_HISTORY_ITEMS = 10;
 
 // 密码保护配置
 const PASSWORD_CONFIG = {
@@ -81,6 +81,7 @@ const API_SITES = {
         api: 'https://cj.rycjapi.com',
         name: '如意资源',
     },
+    
     jkun: {
         api: 'https://jkunzyapi.com',
         name: 'jkun资源',
@@ -116,8 +117,41 @@ const API_SITES = {
         name: '黄色仓库',
         adult: true,
         detail: 'https://hsckzy.vip' // 添加detail URL以便特殊处理
+    },
+    	        thzy: {
+        api: 'https://thzy1.me',
+        name: '桃花资源',
+		adult: true,
+        detail: 'https://thzy1.me',
+    }, 
+	
+	        slzy: {
+        api: 'https://beiyong.slapibf.com',
+        name: '森林资源',
+		adult: true,
+        detail: 'https://beiyong.slapibf.com',
+    }, 
+	
+	        syzy: {
+        api: 'https://shayuapi.com',
+        name: '鲨鱼资源',
+		adult: true,
+        detail: 'https://shayuapi.com',
+    }, 
+	
+	        nxxzy: {
+        api: 'https://naixxzy.com',
+        name: '奶香香资源',
+		adult: true,
+        detail: 'https://naixxzy.com',
+    },
+	
+	        hgzy: {
+        api: 'https://www.avre06.com',
+        name: '黄瓜资源',
+		adult: true,
+        detail: 'https://www.avre06.com',
     }
-    // 您可以按需添加更多源
 };
 
 // 添加聚合搜索的配置选项
@@ -198,4 +232,4 @@ const CUSTOM_API_CONFIG = {
 };
 
 // 新增隐藏内置黄色采集站API的变量，默认为true
-const HIDE_BUILTIN_ADULT_APIS = true;
+const HIDE_BUILTIN_ADULT_APIS = false;
