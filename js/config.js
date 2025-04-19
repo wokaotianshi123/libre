@@ -26,6 +26,11 @@ const API_SITES = {
         name: '黑木耳',
         detail: 'https://heimuer.tv'
     },
+  maotai: {
+        api: 'https://caiji.maotaizy.cc',
+        name: '茅台资源',
+        detail: 'https://caiji.maotaizy.cc'
+    },		
     ffzy: {
         api: 'http://ffzy5.tv',
         name: '非凡影视',
