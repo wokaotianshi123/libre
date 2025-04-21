@@ -26,11 +26,11 @@ const API_SITES = {
         name: '黑木耳',
         detail: 'https://heimuer.tv'
     },
-  maotai: {
-        api: 'https://caiji.maotaizy.cc',
-        name: '茅台资源',
-        detail: 'https://caiji.maotaizy.cc'
-    },		
+    maotai: {
+                api: 'https://caiji.maotaizy.cc',
+                        name: '茅台资源',
+                                detail: 'https://caiji.maotaizy.cc'
+                                    },	
     ffzy: {
         api: 'http://ffzy5.tv',
         name: '非凡影视',
@@ -169,8 +169,14 @@ const API_SITES = {
         api: 'https://yutuzy10.com',
         name: '玉兔资源',
         adult: true
+    },
+	    xingba: {
+        api: 'https://xingba111.com',
+        name: '杏吧资源',
+        adult: true
     }
 };
+
 
 // 添加聚合搜索的配置选项
 const AGGREGATED_SEARCH_CONFIG = {
