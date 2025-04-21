@@ -156,6 +156,19 @@ const API_SITES = {
         name: '黄瓜资源',
 		adult: true,
         detail: 'https://www.avre06.com',
+    },
+    zuid: {
+        api: 'https://api.zuidapi.com',
+        name: '最大资源'
+    },
+    suoni: {
+        api: 'https://suoniapi.com',
+        name: '索尼资源'
+    },
+    yutu: {
+        api: 'https://yutuzy10.com',
+        name: '玉兔资源',
+        adult: true
     }
 };
 
