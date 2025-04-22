@@ -1,7 +1,7 @@
 // 豆瓣热门电影电视剧推荐功能
 
 // 豆瓣标签列表
-const doubanTags = ['热门', '最新', '经典', '可播放',  '电影', '高分', '动画电影', '冷门佳片', '美剧', '英剧', '国产剧', '日本动画', '纪录片', '综艺'];
+const doubanTags = ['热门', '最新','经典','电影', '国产剧', '美剧', '英剧', '可播放',   '高分', '动画电影', '冷门佳片',  '日本动画', '纪录片', '综艺'];
 let doubanCurrentTag = localStorage.getItem('doubanCurrentTag') || '热门';
 let doubanPageStart = 0;
 const doubanPageSize = 24; // 一次显示的项目数量
@@ -109,6 +109,50 @@ function fillAndSearch(title) {
         .replace(/>/g, '&gt;')
         .replace(/"/g, '&quot;');
     
+    const input = document.getElementById('searchInput');
+    if (input) {
+        input.value = safeTitle;
+        search(); // 使用已有的search函数执行搜索
+    }
+}
+
+// 填充搜索框，确保豆瓣资源API被选中，然后执行搜索
+function fillAndSearchWithDouban(title) {
+    if (!title) return;
+    
+    // 安全处理标题，防止XSS
+    const safeTitle = title
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+    
+    // 确保豆瓣资源API被选中
+    if (typeof selectedAPIs !== 'undefined' && !selectedAPIs.includes('dbzy')) {
+        // 在设置中勾选豆瓣资源API复选框
+        const doubanCheckbox = document.querySelector('input[id="api_dbzy"]');
+        if (doubanCheckbox) {
+            doubanCheckbox.checked = true;
+            
+            // 触发updateSelectedAPIs函数以更新状态
+            if (typeof updateSelectedAPIs === 'function') {
+                updateSelectedAPIs();
+            } else {
+                // 如果函数不可用，则手动添加到selectedAPIs
+                selectedAPIs.push('dbzy');
+                localStorage.setItem('selectedAPIs', JSON.stringify(selectedAPIs));
+                
+                // 更新选中API计数（如果有这个元素）
+                const countEl = document.getElementById('selectedAPICount');
+                if (countEl) {
+                    countEl.textContent = selectedAPIs.length;
+                }
+            }
+            
+            showToast('已自动选择豆瓣资源API', 'info');
+        }
+    }
+    
+    // 填充搜索框并执行搜索
     const input = document.getElementById('searchInput');
     if (input) {
         input.value = safeTitle;
@@ -274,7 +318,7 @@ function renderDoubanCards(data, container) {
             
             // 为不同设备优化卡片布局
             card.innerHTML = `
-                <div class="relative w-full aspect-[2/3] overflow-hidden cursor-pointer" onclick="fillSearchInput('${safeTitle}')">
+                <div class="relative w-full aspect-[2/3] overflow-hidden cursor-pointer" onclick="fillAndSearchWithDouban('${safeTitle}')">
                     <img src="${originalCoverUrl}" alt="${safeTitle}" 
                         class="w-full h-full object-cover transition-transform duration-500 hover:scale-110"
                         onerror="this.onerror=null; this.src='${proxiedCoverUrl}'; this.classList.add('object-contain');"
@@ -290,7 +334,7 @@ function renderDoubanCards(data, container) {
                     </div>
                 </div>
                 <div class="p-2 text-center bg-[#111]">
-                    <button onclick="fillSearchInput('${safeTitle}')" 
+                    <button onclick="fillAndSearchWithDouban('${safeTitle}')" 
                             class="text-sm font-medium text-white truncate w-full hover:text-pink-400 transition"
                             title="${safeTitle}">
                         ${safeTitle}
