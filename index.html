@@ -201,22 +201,22 @@
 
             <div id="searchArea" class="flex-1 flex flex-col items-center justify-center">
                 <div class="w-full max-w-2xl">
-                    <div class="flex items-center mb-3">
+                    <div class="flex items-stretch mb-3 h-14 shadow-lg rounded-lg overflow-hidden">
                         <!-- 首页按钮 -->
                         <button onclick="resetToHome()" 
-                                class="px-6 py-4 bg-white text-black font-medium rounded-l-lg hover:bg-gray-200 transition-colors" 
+                                class="w-20 sm:w-24 flex items-center justify-center bg-white text-black font-medium hover:bg-gray-200 transition-colors" 
                                 aria-label="返回首页" title="返回首页">
                             首页
                         </button>
                         <!-- 搜索输入 -->
                         <input type="text" 
                                id="searchInput" 
-                               class="flex-1 bg-[#111] border border-[#333] text-white px-6 py-4 focus:outline-none transition-colors" 
+                               class="flex-1 bg-[#111] border-y border-[#333] text-white px-6 py-0 focus:outline-none transition-colors" 
                                placeholder="搜索你喜欢的视频..." 
                                aria-label="视频搜索框">
                         <!-- 搜索按钮 -->
                         <button onclick="search()" 
-                                class="px-8 py-4 bg-white text-black font-medium rounded-r-lg hover:bg-gray-200 transition-colors" 
+                                class="w-20 sm:w-24 flex items-center justify-center bg-white text-black font-medium hover:bg-gray-200 transition-colors" 
                                 aria-label="搜索按钮">
                             搜索
                         </button>
@@ -312,7 +312,6 @@
     </div>
 
 
-
     <!-- 版权声明弹窗 -->
     <div id="disclaimerModal" class="fixed inset-0 bg-black/90 hidden items-center justify-center z-[60]">
         <div class="bg-[#111] p-8 rounded-lg border border-[#333] w-11/12 max-w-2xl max-h-[90vh] overflow-y-auto">
@@ -368,19 +367,12 @@
     }
     </script>
 
-    <!-- 引入纯 JS sha256（HTTP 下依然可用） -->
-    <script src="https://cdn.jsdelivr.net/npm/js-sha256@0.9.0/build/sha256.min.js"></script>
-    <script>
-        // 保存原始 js‑sha256 实现，避免被 password.js 覆盖
-        window._jsSha256 = window.sha256;
-    </script>
+
     <script src="js/config.js"></script>
     <script src="js/ui.js"></script>
     <script src="js/api.js"></script>
     <script src="js/douban.js"></script>
     <script src="js/app.js"></script>
-
-
 
 
 </body>
