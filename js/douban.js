@@ -1,7 +1,7 @@
 // 豆瓣热门电影电视剧推荐功能
 
 // 豆瓣标签列表
-const doubanTags = ['热门', '最新', '经典', '可播放', '豆瓣高分', '冷门佳片', '华语', '欧美', '韩国', '日本'];
+const doubanTags = ['热门', '最新', '经典', '可播放',  '电影', '高分', '动画电影', '冷门佳片', '美剧', '英剧', '国产剧', '日本动画', '纪录片', '综艺'];
 let doubanCurrentTag = localStorage.getItem('doubanCurrentTag') || '热门';
 let doubanPageStart = 0;
 const doubanPageSize = 16; // 一次显示的项目数量
