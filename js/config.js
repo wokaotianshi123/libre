@@ -174,7 +174,13 @@ const API_SITES = {
         api: 'https://xingba111.com',
         name: '杏吧资源',
         adult: true
+    },
+	    soa: {
+        api: 'https://api.souavzy.vip',
+        name: '搜a资源',
+        adult: true
     }
+
 };
 
 
