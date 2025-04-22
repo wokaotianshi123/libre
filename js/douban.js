@@ -4,7 +4,7 @@
 const doubanTags = ['热门', '最新', '经典', '可播放',  '电影', '高分', '动画电影', '冷门佳片', '美剧', '英剧', '国产剧', '日本动画', '纪录片', '综艺'];
 let doubanCurrentTag = localStorage.getItem('doubanCurrentTag') || '热门';
 let doubanPageStart = 0;
-const doubanPageSize = 16; // 一次显示的项目数量
+const doubanPageSize = 24; // 一次显示的项目数量
 
 // 初始化豆瓣功能
 function initDouban() {
