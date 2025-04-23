@@ -31,6 +31,11 @@ const API_SITES = {
         name: '非凡影视',
         detail: 'http://ffzy5.tv'
     },
+    wwdj: {
+        api: 'https://api.wwzy.tv',
+        name: '旺旺短剧',
+        detail: 'https://api.wwzy.tv'
+    },
     tyyszy: {
         api: 'https://tyyszy.com',
         name: '天涯资源',
