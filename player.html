@@ -251,8 +251,8 @@
         <span id="shortcutText"></span>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/hls.js@1.6.2/dist/hls.min.js" crossorigin="anonymous"></script>
-    <script src="https://s4.zstatic.net/ajax/libs/dplayer/1.27.1/DPlayer.min.js" crossorigin="anonymous"></script>
+    <script src="https://s4.zstatic.net/ajax/libs/hls.js/1.5.6/hls.min.js" integrity="sha256-X1GmLMzVcTBRiGjEau+gxGpjRK96atNczcLBg5w6hKA=" crossorigin="anonymous"></script>
+    <script src="https://s4.zstatic.net/ajax/libs/dplayer/1.26.0/DPlayer.min.js" integrity="sha256-OJg03lDZP0NAcl3waC9OT5jEa8XZ8SM2n081Ik953o4=" crossorigin="anonymous"></script>
     <script src="js/config.js"></script>
     <script>
         // 全局变量
@@ -269,30 +269,6 @@
         let shortcutHintTimeout = null; // 用于控制快捷键提示显示时间
         let adFilteringEnabled = true; // 默认开启广告过滤
         let progressSaveInterval = null; // 定期保存进度的计时器
-
-        let nativeHlsSupported = false;
-        let airPlayAvailable = false;
-
-        // 检测浏览器类型和功能支持
-        function detectBrowserCapabilities() {
-            // 检测是否为 Safari 浏览器
-            const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
-            
-            // 创建测试视频元素
-            const video = document.createElement('video');
-            
-            // 检查是否支持 HLS
-            const canPlay = video.canPlayType('application/vnd.apple.mpegurl');
-            nativeHlsSupported = (canPlay === 'probably' || canPlay === 'maybe');
-            
-            // 检查是否支持 AirPlay (仅在 Safari 中可用)
-            airPlayAvailable = isSafari && 'webkitShowPlaybackTargetPicker' in video;
-            
-            console.log('浏览器检测结果:', {
-                nativeHlsSupported,
-                airPlayAvailable
-            });
-        }
 
         // 页面加载
         document.addEventListener('DOMContentLoaded', function() {
@@ -493,8 +469,6 @@
         function initPlayer(videoUrl) {
             if (!videoUrl) return;
 
-            detectBrowserCapabilities();
-
             // 配置HLS.js选项
             const hlsConfig = {
                 debug: false,
@@ -525,8 +499,7 @@
             };
             
             // 创建DPlayer实例
-
-            const options = {
+            dp = new DPlayer({
                 container: document.getElementById('player'),
                 autoplay: true,
                 theme: '#00ccff',
@@ -538,7 +511,7 @@
                 volume: 0.7,
                 screenshot: true,                // 启用截图功能
                 preventClickToggle: false,       // 允许点击视频切换播放/暂停
-                airplay: airPlayAvailable,       // 在Safari中启用AirPlay功能
+                airplay: true,                   // 在Safari中启用AirPlay功能
                 chromecast: true,                // 启用Chromecast投屏功能
                 contextmenu: [                   // 自定义右键菜单
                     {
@@ -554,14 +527,10 @@
                 ],
                 video: {
                     url: videoUrl,
-                    type: 'auto',
-                    pic: 'https://img.picgo.net/2025/04/12/image362e7d38b4af4a74.png'
-                }
-            };
-            if (!nativeHlsSupported) {
-                options.video.type = 'customHls';
-                options.video.customType = {
-                        customHls: function(video, player) {
+                    type: 'hls',
+                    pic: 'https://img.picgo.net/2025/04/12/image362e7d38b4af4a74.png', // 设置视频封面图
+                    customType: {
+                        hls: function(video, player) {
                             // 清理之前的HLS实例
                             if (currentHls && currentHls.destroy) {
                                 try {
@@ -598,9 +567,8 @@
                                     document.getElementById('error').style.display = 'none';
                                 }
                             });
-
-                            console.log(player.options.video.url);
-                            hls.loadSource(player.options.video.url);
+                            
+                            hls.loadSource(video.src);
                             hls.attachMedia(video);
                             
                             hls.on(Hls.Events.MANIFEST_PARSED, function() {
@@ -693,14 +661,9 @@
                                 }
                             });
                         }
-                    };
-            }
-            dp = new DPlayer(options);
-
-            // airplay
-            dp.video.setAttribute('x-webkit-airplay', 'allow');
-            dp.video.setAttribute('playsinline', 'true');
-            
+                    }
+                }
+            });
             // 全屏模式下锁定横屏
             dp.on('fullscreen', () => {
                 if (window.screen.orientation && window.screen.orientation.lock) {
@@ -1226,6 +1189,7 @@
                         // 存在则更新现有记录的集数、时间戳和URL
                         history[existingIndex].episodeIndex = currentEpisodeIndex;
                         history[existingIndex].timestamp = Date.now();
+						history[existingIndex].sourceName = sourceName
                         // 更新播放进度信息
                         history[existingIndex].playbackPosition = currentPosition > 10 ? currentPosition : history[existingIndex].playbackPosition;
                         history[existingIndex].duration = videoDuration || history[existingIndex].duration;
