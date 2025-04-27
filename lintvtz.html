@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>多站点智能跳转测速器</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 800px; margin: 20px auto; padding: 20px }
+        .status-box { padding: 15px; margin: 10px 0; border-radius: 5px; background: #f5f5f5 }
+        .loading { border-left: 4px solid #2196F3 }
+        .success { border-left: 4px solid #4CAF50 }
+        .error { border-left: 4px solid #f44336 }
+    </style>
+</head>
+<body>
+    <h2>网络测速进行中...</h2>
+    <div id="statusContainer"></div>
+
+    <script>
+        const testUrls = [
+            "https://cfku.wokaotianshi.eu.org/",
+            "https://wokao.endl.site/",
+            "https://tianshipapa.puter.site/",
+            "https://tianshipapa.github.io/libtv/index.html"
+        ];
+
+        // 创建测速记录器
+        const speedTest = urls => {
+            const results = [];
+            let completed = 0;
+            
+            // 创建可视化状态节点
+            const statusElements = urls.map(url => {
+                const div = document.createElement('div');
+                div.className = 'status-box loading';
+                div.innerHTML = `<strong>${url}</strong> - 测试中...`;
+                document.getElementById('statusContainer').appendChild(div);
+                return div;
+            });
+
+            // 异步测速函数
+            const testSpeed = (url, index) => {
+                return new Promise(resolve => {
+                    const startTime = performance.now();
+                    const controller = new AbortController();
+                    const timeoutId = setTimeout(() => {
+                        controller.abort();
+                        statusElements[index].innerHTML += `<br>请求超时（5000ms）`;
+                        resolve({ url, time: Infinity });
+                    }, 5000);
+
+                    fetch(url, { 
+                        mode: 'no-cors',
+                        signal: controller.signal 
+                    })
+                    .then(() => {
+                        clearTimeout(timeoutId);
+                        const loadTime = performance.now() - startTime;
+                        statusElements[index].className = 'status-box success';
+                        statusElements[index].innerHTML = `
+                            <strong>${url}</strong><br>
+                            响应时间：${loadTime.toFixed(2)}ms
+                        `;
+                        resolve({ url, time: loadTime });
+                    })
+                    .catch(error => {
+                        clearTimeout(timeoutId);
+                        statusElements[index].className = 'status-box error';
+                        statusElements[index].innerHTML = `
+                            <strong>${url}</strong><br>
+                            错误：${error.message || '请求失败'}
+                        `;
+                        resolve({ url, time: Infinity });
+                    });
+                });
+            };
+
+            // 执行并行测速
+            return Promise.all(urls.map(testSpeed))
+                .then(results => {
+                    const validResults = results.filter(r => r.time !== Infinity);
+                    if(validResults.length === 0) {
+                        alert('所有站点均不可达');
+                        return null;
+                    }
+                    return validResults.sort((a, b) => a.time - b.time)[0];
+                });
+        };
+
+        // 执行测速并跳转
+        speedTest(testUrls).then(fastest => {
+            if(fastest) {
+                const delay = 2000; // 结果展示延时
+                setTimeout(() => {
+                    window.location.href = fastest.url;
+                }, delay);
+            }
+        });
+    </script>
+</body>
+</html>
