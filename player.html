@@ -574,7 +574,12 @@
                             
                             hls.loadSource(video.src);
                             hls.attachMedia(video);
-                            
+                             // enable airplay, from https://github.com/video-dev/hls.js/issues/5989
+                            const source = document.createElement('source');
+                            source.src = videoUrl;
+                            video.appendChild(source);
+                            video.disableRemotePlayback = false;
+							
                             hls.on(Hls.Events.MANIFEST_PARSED, function() {
                                 video.play().catch(e => {
                                     console.warn('自动播放被阻止:', e);
