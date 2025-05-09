@@ -26,16 +26,17 @@
     <!-- Favicon -->
     <link rel="icon" href="https://images.icon-icons.com/38/PNG/512/retrotv_5520.png">
     <link rel="apple-touch-icon" href="https://images.icon-icons.com/38/PNG/512/retrotv_5520.png">
+    <link rel="manifest" href="manifest.json">
     
     <!-- Canonical URL -->
     <link rel="canonical" href="https://libretv.is-an.org/">
     
-    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="libs/tailwindcss.min.js"></script>
     <link rel="stylesheet" href="css/styles.css">
 </head>
 <body class="page-bg text-white">
     <!-- 将历史记录按钮移到左上角，并缩小尺寸 -->
-    <div class="fixed top-4 left-4 z-50">
+    <div class="fixed top-4 left-4 z-10">
         <button onclick="toggleHistory(event)" class="bg-[#222] hover:bg-[#333] border border-[#333] hover:border-white rounded-lg px-3 py-1.5 transition-colors" aria-label="观看历史">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
@@ -44,7 +45,7 @@
     </div>
 
     <!-- 设置按钮保留在右上角，并缩小尺寸 -->
-    <div class="fixed top-4 right-4 z-50">
+    <div class="fixed top-4 right-4 z-10">
         <button onclick="toggleSettings(event)" class="bg-[#222] hover:bg-[#333] border border-[#333] hover:border-white rounded-lg px-3 py-1.5 transition-colors" aria-label="打开设置">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
@@ -91,7 +92,7 @@
                 
                 <!-- API选择区域 - 使用滚动区域 -->
                 <div class="max-h-40 overflow-y-auto bg-[#191919] p-2 rounded-lg mb-3">
-                    <div id="apiCheckboxes" class="grid grid-cols-2 gap-2">
+                    <div id="apiCheckboxes">
                         <!-- 这里将动态插入API复选框 -->
                     </div>
                 </div>
@@ -175,6 +176,19 @@
                     </div>
                 </div>
             </div>
+
+            <!-- 一般功能区域 -->
+            <div class="p-3 bg-[#151515] rounded-lg shadow-inner">
+                <label class="block text-sm font-medium text-gray-400 mb-3 border-b border-[#333] pb-1">一般功能</label>
+                <button onclick="clearLocalStorage()" class="px-4 py-2 mt-2 w-full bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 hover:from-indigo-600 hover:via-purple-600 hover:to-pink-600 text-white rounded-lg text-sm transition-all duration-300 shadow-md hover:shadow-lg">清除页面缓存</button>
+            </div>
+
+            <!-- 导入导出配置区域 -->
+            <div class="p-3 bg-[#151515] rounded-lg shadow-inner">
+                <label class="block text-sm font-medium text-gray-400 mb-3 border-b border-[#333] pb-1">保存配置</label>
+                <button onclick="importConfig()" class="px-4 py-2 w-full bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 hover:from-indigo-600 hover:via-purple-600 hover:to-pink-600 text-white rounded-lg text-sm transition-all duration-300 shadow-md hover:shadow-lg">导入配置</button>
+                <button onclick="exportConfig()" class="px-4 py-2 mt-2 w-full bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 hover:from-indigo-600 hover:via-purple-600 hover:to-pink-600 text-white rounded-lg text-sm transition-all duration-300 shadow-md hover:shadow-lg">导出配置</button>
+            </div>            
         </div>
     </div>
 
@@ -266,7 +280,8 @@
                             <span id="searchResultsCount">0</span> 个结果
                         </div>
                     </div>
-                    <div id="results" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3">
+                    <!-- 修改网格布局以适应大一些的横向卡片 -->
+                    <div id="results" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                         <!-- 结果将在这里动态生成 -->
                     </div>
                 </div>
@@ -303,7 +318,7 @@
     </footer>
 
     <!-- 详情模态框 -->
-    <div id="modal" class="fixed inset-0 bg-black/95 hidden flex items-center justify-center transition-opacity duration-300">
+    <div id="modal" class="fixed inset-0 bg-black/95 hidden flex items-center justify-center transition-opacity duration-300 z-40">
         <div class="bg-[#111] p-8 rounded-lg w-11/12 max-w-4xl border border-[#333] max-h-[90vh] flex flex-col">
             <div class="flex justify-between items-center mb-6 flex-none">
                 <h2 id="modalTitle" class="text-2xl font-bold gradient-text break-words pr-4 max-w-[80%]"></h2>
@@ -316,7 +331,50 @@
         </div>
     </div>
 
- 
+    <!-- 密码验证弹窗 -->
+    <div id="passwordModal" class="fixed inset-0 bg-black/95 hidden items-center justify-center z-[65] transition-opacity duration-300">
+        <div class="bg-[#111] p-8 rounded-lg w-11/12 max-w-md border border-[#333] max-h-[90vh] flex flex-col">
+            <div class="flex justify-between items-center mb-6 flex-none">
+                <h2 class="text-2xl font-bold gradient-text">访问验证</h2>
+            </div>
+            <div class="mb-6">
+                <p class="text-gray-300 mb-4">请输入密码继续访问</p>
+                <form id="passwordForm" onsubmit="handlePasswordSubmit(); return false;">
+                    <input type="text" name="username" id="username" autocomplete="username" style="display:none" tabindex="-1" aria-hidden="true">
+                    <input type="password" id="passwordInput" class="w-full bg-[#111] border border-[#333] text-white px-4 py-3 rounded-lg focus:outline-none focus:border-white transition-colors" placeholder="密码..." autocomplete="new-password">
+                    <button id="passwordSubmitBtn" type="submit" class="mt-4 w-full bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded">提交</button>
+                </form>
+                <p id="passwordError" class="text-red-500 mt-2 hidden">密码错误，请重试</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- 版权声明弹窗 -->
+    <div id="disclaimerModal" class="fixed inset-0 bg-black/90 hidden items-center justify-center z-[60]">
+        <div class="bg-[#111] p-8 rounded-lg border border-[#333] w-11/12 max-w-2xl max-h-[90vh] overflow-y-auto">
+            <h2 class="text-2xl font-bold gradient-text mb-6 text-center">使用声明</h2>
+            <div class="text-gray-300 space-y-4">
+                <p>
+                    欢迎使用 LibreTV。在开始使用前，请您了解并同意以下条款：
+                </p>
+                <p>
+                    <strong class="text-blue-400">服务性质：</strong> LibreTV 仅提供视频搜索服务，不直接提供、存储或上传任何视频内容。所有搜索结果均来自第三方公开接口。
+                </p>
+                <p>
+                    <strong class="text-blue-400">用户责任：</strong> 用户在使用本站服务时，须遵守相关法律法规，不得利用搜索结果从事侵权行为，如下载、传播未经授权的作品等。
+                </p>
+                <p>
+                    <strong class="text-blue-400">侵权投诉：</strong> 若您是版权方或相关权利人，发现搜索结果中存在侵犯您合法权益的内容，请通过 <a href="mailto:troll@pissmail.com" class="text-blue-400 hover:underline">troll@pissmail.com</a> 向我们反馈。我们将在收到投诉后尽快核实处理。
+                </p>
+            </div>
+            <div class="mt-6 flex justify-center">
+                <button id="acceptDisclaimerBtn" class="px-6 py-3 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 text-white font-semibold rounded-lg hover:shadow-lg transition-all duration-300">
+                    我已了解并接受
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- 错误提示框 -->
     <div id="toast" class="fixed top-4 left-1/2 -translate-x-1/2 bg-red-500 text-white px-6 py-3 rounded-lg shadow-lg transform transition-all duration-300 opacity-0 -translate-y-full">
         <p id="toastMessage"></p>
@@ -346,13 +404,59 @@
     }
     </script>
 
-
+    <!-- 引入纯 JS sha256（HTTP 下依然可用） -->
+    <script src="libs/sha256.min.js"></script>
+    <script>
+        // 保存原始 js‑sha256 实现，避免被 password.js 覆盖
+        window._jsSha256 = window.sha256;
+    </script>
     <script src="js/config.js"></script>
     <script src="js/ui.js"></script>
     <script src="js/api.js"></script>
-    <script src="js/douban.js"></script>
+    <script src="js/password.js"></script>
     <script src="js/app.js"></script>
+    <script src="js/douban.js"></script>
 
- 
+    <!-- PWA 注册 -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/service-worker.js');
+            });
+        }
+    </script>
+
+    <!-- 环境变量注入脚本 -->
+    <script>
+        // 创建全局环境变量对象
+        window.__ENV__ = window.__ENV__ || {};
+        
+        // 注入服务器端环境变量 (将由服务器端替换)
+        // PASSWORD 变量将在这里被服务器端注入
+        window.__ENV__.PASSWORD = "{{PASSWORD}}";
+    </script>
+
+    <!-- 弹窗显示脚本 -->
+    <script>
+        // 在页面加载完成后检查用户是否首次访问
+        document.addEventListener('DOMContentLoaded', function() {
+            // 检查用户是否已经看过声明
+            const hasSeenDisclaimer = localStorage.getItem('hasSeenDisclaimer');
+            
+            if (!hasSeenDisclaimer) {
+                // 显示弹窗
+                const disclaimerModal = document.getElementById('disclaimerModal');
+                disclaimerModal.style.display = 'flex';
+                
+                // 添加接受按钮事件
+                document.getElementById('acceptDisclaimerBtn').addEventListener('click', function() {
+                    // 保存用户已看过声明的状态
+                    localStorage.setItem('hasSeenDisclaimer', 'true');
+                    // 隐藏弹窗
+                    disclaimerModal.style.display = 'none';
+                });
+            }
+        });
+    </script>
 </body>
 </html>
