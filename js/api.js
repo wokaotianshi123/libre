@@ -90,7 +90,7 @@ async function handleApiRequest(url) {
             }
 
             // 对于特殊源，使用特殊处理方式
-            if ((sourceCode === 'ffzy' || sourceCode === 'jisu' || sourceCode === 'huangcang') && API_SITES[sourceCode].detail) {
+            if ((sourceCode === 'ffzy' || sourceCode === 'jisu' || sourceCode === 'huangcang' || sourceCode === 'dytt') && API_SITES[sourceCode].detail) {
                 return await handleSpecialSourceDetail(id, sourceCode);
             }
             
