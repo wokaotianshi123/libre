@@ -276,5 +276,5 @@ const CUSTOM_API_CONFIG = {
     adultPropName: 'isAdult' // 用于标记成人内容的属性名
 };
 
-// 新增隐藏内置黄色采集站API的变量，默认为true
+// 隐藏内置黄色采集站API的变量
 const HIDE_BUILTIN_ADULT_APIS = false;

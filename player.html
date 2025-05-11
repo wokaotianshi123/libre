@@ -4,12 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>LibreTV 播放器</title>
-    
+
     <!-- Favicon -->
     <link rel="icon" href="https://images.icon-icons.com/38/PNG/512/retrotv_5520.png">
     <link rel="apple-touch-icon" href="https://images.icon-icons.com/38/PNG/512/retrotv_5520.png">
     <link rel="manifest" href="manifest.json">
+
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="js/wakelock.js"></script>
     <link rel="stylesheet" href="css/styles.css">
     <style>
         body, html {
@@ -82,7 +84,8 @@
         .episode-grid {
             max-height: 30vh;
             overflow-y: auto;
-            padding: 1rem 0;
+            padding-bottom: 1rem;
+            margin-top: 1rem;
         }
         .switch {
             position: relative;
@@ -158,6 +161,23 @@
         .player-container:fullscreen #player {
             width: 100%; height: 100%;
         }
+        
+        /* 新增：移动端响应式样式 */
+        @media (max-width: 640px) {
+            .episode-grid {
+                max-height: 40vh; /* 移动端增加集数列表高度 */
+            }
+            
+            /* 改进移动端按钮显示 */
+            button {
+                white-space: nowrap;
+            }
+            
+            /* 控制栏在小屏幕上可能需要换行 */
+            .player-container .flex-wrap {
+                margin-bottom: 4px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -179,6 +199,24 @@
             <span class="home-btn-text">返回首页</span>
         </a>
     </header>
+
+    <!-- 密码验证弹窗 -->
+    <div id="passwordModal" class="fixed inset-0 bg-black/95 hidden items-center justify-center z-[65] transition-opacity duration-300">
+        <div class="bg-[#111] p-8 rounded-lg w-11/12 max-w-md border border-[#333] max-h-[90vh] flex flex-col">
+            <div class="flex justify-between items-center mb-6 flex-none">
+                <h2 class="text-2xl font-bold gradient-text">访问验证</h2>
+            </div>
+            <div class="mb-6">
+                <p class="text-gray-300 mb-4">请输入密码继续访问</p>
+                <form id="passwordForm" onsubmit="handlePasswordSubmit(); return false;">
+                    <input type="text" name="username" id="username" autocomplete="username" style="display:none" tabindex="-1" aria-hidden="true">
+                    <input type="password" id="passwordInput" class="w-full bg-[#111] border border-[#333] text-white px-4 py-3 rounded-lg focus:outline-none focus:border-white transition-colors" placeholder="密码..." autocomplete="new-password">
+                    <button id="passwordSubmitBtn" type="submit" class="mt-4 w-full bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded">提交</button>
+                </form>
+                <p id="passwordError" class="text-red-500 mt-2 hidden">密码错误，请重试</p>
+            </div>
+        </div>
+    </div>
 
     <main class="container mx-auto px-4 py-4">
         <!-- 视频播放区 -->
@@ -218,26 +256,43 @@
 
         <!-- 添加自动播放开关和排序按钮 -->
         <div class="player-container">
-            <div class="flex justify-end items-center mb-4 gap-2">
-                <span class="text-gray-400 text-sm">自动连播</span>
-                <label class="switch">
-                    <input type="checkbox" id="autoplayToggle">
-                    <span class="slider"></span>
-                </label>
-                <button onclick="toggleEpisodeOrder()" class="ml-4 px-4 py-2 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 text-white font-semibold rounded-full shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center space-x-2">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" id="orderIcon" viewBox="0 0 20 20" fill="currentColor">
-                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-11a1 1 0 10-2 0v3.586L7.707 9.293a1 1 0 00-1.414 1.414l3 3a1 1 0 001.414 0l3-3a1 1 0 00-1.414-1.414L11 10.586V7z" clip-rule="evenodd" />
-                    </svg>
-                    <span id="orderText">倒序排列</span>
-                </button>
-                <button id="lockToggle" onclick="toggleControlsLock()" title="锁定控制" 
-                        class="px-2 py-1 bg-[#333] hover:bg-[#444] text-white rounded-full transition">
-                    <svg id="lockIcon" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <!-- 默认状态：未锁图标 -->
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                              d="M15 11V7a3 3 0 00-6 0v4m-3 4h12v6H6v-6z" />
-                    </svg>
-                </button>
+            <div class="flex flex-wrap justify-end items-center gap-2">
+                <!-- 自动连播开关 - 分组到左边 -->
+                <div class="flex items-center gap-1 flex-shrink-0 mr-auto">
+                    <span class="text-gray-400 text-sm whitespace-nowrap">自动连播</span>
+                    <label class="switch">
+                        <input type="checkbox" id="autoplayToggle">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                
+                <!-- 把各种功能按钮放在右侧 - 在小屏幕上各自占一行 -->
+                <div class="flex flex-wrap justify-end gap-2">
+                    <!-- 倒序排列按钮 -->
+                    <button onclick="toggleEpisodeOrder()" class="px-3 py-1 bg-[#222] hover:bg-[#333] border border-[#333] rounded-lg transition-colors flex items-center space-x-1 flex-shrink-0">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" id="orderIcon" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-11a1 1 0 10-2 0v3.586L7.707 9.293a1 1 0 00-1.414 1.414l3 3a1 1 0 001.414 0l3-3a1 1 0 00-1.414-1.414L11 10.586V7z" clip-rule="evenodd" />
+                        </svg>
+                        <span id="orderText">倒序排列</span>
+                    </button>
+                    
+                    <!-- 复制链接按钮 -->
+                    <button title="复制播放链接" onclick="copyLinks()" class="px-2 py-1 bg-[#222] hover:bg-[#333] border border-[#333] text-white rounded-lg transition">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
+                        </svg>
+                    </button>
+                    
+                    <!-- 锁定控制按钮 - 始终显示在最右侧 -->
+                    <button id="lockToggle" onclick="toggleControlsLock()" title="锁定控制" 
+                            class="px-2 py-1 bg-[#222] hover:bg-[#333] border border-[#333] text-white rounded-lg transition flex-shrink-0">
+                        <svg id="lockIcon" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <!-- 默认状态：未锁图标 -->
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M15 11V7a3 3 0 00-6 0v4m-3 4h12v6H6v-6z" />
+                        </svg>
+                    </button>
+                </div>
             </div>
         </div>
 
@@ -260,10 +315,32 @@
         <span id="shortcutText"></span>
     </div>
 
-    <script src="https://s4.zstatic.net/ajax/libs/hls.js/1.5.6/hls.min.js" integrity="sha256-X1GmLMzVcTBRiGjEau+gxGpjRK96atNczcLBg5w6hKA=" crossorigin="anonymous"></script>
-    <script src="https://s4.zstatic.net/ajax/libs/dplayer/1.26.0/DPlayer.min.js" integrity="sha256-OJg03lDZP0NAcl3waC9OT5jEa8XZ8SM2n081Ik953o4=" crossorigin="anonymous"></script>
-    <script src="js/config.js"></script>
+    <!-- 引入纯 JS sha256（HTTP 下依然可用） -->
+    <script src="libs/sha256.min.js"></script>
     <script>
+        // 保存原始 js‑sha256 实现，避免被 password.js 覆盖
+        window._jsSha256 = window.sha256;
+    </script>
+    
+ <script src="https://s4.zstatic.net/ajax/libs/hls.js/1.5.6/hls.min.js" crossorigin="anonymous"></script>
+    <script src="https://s4.zstatic.net/ajax/libs/dplayer/1.26.0/DPlayer.min.js" crossorigin="anonymous"></script>
+
+
+    <script src="js/config.js"></script>
+    <script src="js/password.js"></script>
+    <script src="js/ui.js"></script>
+
+    <script>
+        // 创建全局环境变量对象
+        window.__ENV__ = window.__ENV__ || {};
+        
+        // 注入服务器端环境变量 (将由服务器端替换)
+        // PASSWORD 变量将在这里被服务器端注入
+        window.__ENV__.PASSWORD = "{{PASSWORD}}";
+
+        // =================================
+        // ============== PLAYER ==========
+        // =================================
         // 全局变量
         let currentVideoTitle = '';
         let currentEpisodeIndex = 0;
@@ -281,10 +358,30 @@
 
         // 页面加载
         document.addEventListener('DOMContentLoaded', function() {
+            // 先检查用户是否已通过密码验证
+            if (!isPasswordVerified()) {
+                // 隐藏加载提示
+                document.getElementById('loading').style.display = 'none';
+                return;
+            }
+
+            initializePageContent();
+        });
+
+        // 监听密码验证成功事件
+        document.addEventListener('passwordVerified', () => {
+            document.getElementById('loading').style.display = 'block';
+
+            initializePageContent();
+        });
+
+        // 初始化页面内容
+        function initializePageContent() {
             // 解析URL参数
             const urlParams = new URLSearchParams(window.location.search);
             const videoUrl = urlParams.get('url');
             const title = urlParams.get('title');
+            const sourceCode = urlParams.get('source_code');
             let index = parseInt(urlParams.get('index') || '0');
             const episodesList = urlParams.get('episodes'); // 新增：从URL获取集数信息
 
@@ -348,10 +445,10 @@
             // 设置页面标题
             document.title = currentVideoTitle + ' - LibreTV播放器';
             document.getElementById('videoTitle').textContent = currentVideoTitle;
-            
+
             // 初始化播放器
             if (videoUrl) {
-                initPlayer(videoUrl);
+                initPlayer(videoUrl, sourceCode);
                 
                 // 尝试从URL参数中恢复播放位置
                 const position = urlParams.get('position');
@@ -419,7 +516,7 @@
                     clearInterval(waitForVideo);
                 }
             }, 200);
-        });
+        }
 
         // 处理键盘快捷键
         function handleKeyboardShortcuts(e) {
@@ -475,7 +572,7 @@
         }
 
         // 初始化播放器
-        function initPlayer(videoUrl) {
+        function initPlayer(videoUrl, sourceCode) {
             if (!videoUrl) return;
 
             // 配置HLS.js选项
@@ -537,7 +634,7 @@
                 video: {
                     url: videoUrl,
                     type: 'hls',
-                    pic: 'https://img.picgo.net/2025/04/12/image362e7d38b4af4a74.png', // 设置视频封面图
+                    pic: 'image/nomedia.png', // 设置视频封面图
                     customType: {
                         hls: function(video, player) {
                             // 清理之前的HLS实例
@@ -576,7 +673,7 @@
                                     document.getElementById('error').style.display = 'none';
                                 }
                             });
-                            
+
                             hls.loadSource(video.src);
                             hls.attachMedia(video);
                             
@@ -585,7 +682,7 @@
                             source.src = videoUrl;
                             video.appendChild(source);
                             video.disableRemotePlayback = false;
-                                     
+                            
                             hls.on(Hls.Events.MANIFEST_PARSED, function() {
                                 video.play().catch(e => {
                                     console.warn('自动播放被阻止:', e);
@@ -649,35 +746,9 @@
                             hls.on(Hls.Events.LEVEL_LOADED, function() {
                                 document.getElementById('loading').style.display = 'none';
                             });
-
-                            // --- 体验加强版：黑屏快进跳广告 ---
-                            let tmp_time_add = 0.1;
-                            const tmp_max_buffer_length = hls.config.maxBufferLength;
-                            hls.on(Hls.Events.FRAG_PARSED, (event, data) => {
-                                if (data.frag.endList) {
-                                    const cur = hls.media.currentTime;
-                                    const dur = hls.media.duration || 0;
-                                    if (cur < dur) {
-                                        data.frag.endList = undefined;
-                                        // 根据 tmp_time_add 调整 buffer 长度
-                                        hls.config.maxBufferLength = tmp_time_add < 1
-                                            ? 2
-                                            : tmp_max_buffer_length;
-                                        // 重新加载并跳转
-                                        hls.loadSource(video.src);
-                                        hls.attachMedia(video);
-                                        hls.media.currentTime = cur + tmp_time_add;
-                                        // 切换下次跳转时长：0.1 ↔ 5
-                                        tmp_time_add = tmp_time_add < 1 ? 5 : 0.1;
-                                        player.video.play().catch(() => {});
-                                    } else {
-                                        player.video.pause();
-                                    }
-                                }
-                            });
                         }
                     }
-                }
+            }
             });
             // 全屏模式下锁定横屏
             dp.on('fullscreen', () => {
@@ -723,8 +794,10 @@
                 }
                 showError('视频播放失败，请检查视频源或网络连接');
             });
-                  // 添加移动端长按两倍速播放功能
-            setupLongPressSpeedControl();      
+
+            // 添加移动端长按两倍速播放功能
+            setupLongPressSpeedControl();
+            
             // 添加seeking和seeked事件监听器，以检测用户是否在拖动进度条
             dp.on('seeking', function() {
                 isUserSeeking = true;
@@ -859,22 +932,23 @@
         // M3U8清单广告过滤函数
         function filterAdsFromM3U8(m3u8Content, strictMode = false) {
             if (!m3u8Content) return '';
-            
+
             // 按行分割M3U8内容
             const lines = m3u8Content.split('\n');
             const filteredLines = [];
-            
+
             for (let i = 0; i < lines.length; i++) {
                 const line = lines[i];
-                
+
                 // 只过滤#EXT-X-DISCONTINUITY标识
                 if (!line.includes('#EXT-X-DISCONTINUITY')) {
                     filteredLines.push(line);
                 }
             }
-            
+
             return filteredLines.join('\n');
         }
+        
 
         // 显示错误
         function showError(message) {
@@ -947,7 +1021,7 @@
                 html += `
                     <button id="episode-${realIndex}" 
                             onclick="playEpisode(${realIndex})" 
-                            class="px-4 py-2 ${isActive ? 'episode-active' : 'bg-[#222] hover:bg-[#333]'} border ${isActive ? 'border-blue-500' : 'border-[#333]'} rounded-lg transition-colors text-center episode-btn">
+                            class="px-4 py-2 ${isActive ? 'episode-active' : '!bg-[#222] hover:!bg-[#333] hover:!shadow-none'} !border ${isActive ? '!border-blue-500' : '!border-[#333]'} rounded-lg transition-colors text-center episode-btn">
                         第${realIndex + 1}集
                     </button>
                 `;
@@ -992,6 +1066,7 @@
             // 获取当前URL参数，保留source参数
             const urlParams = new URLSearchParams(window.location.search);
             const sourceName = urlParams.get('source') || '';
+            const sourceCode = urlParams.get('source_code') || '';
             
             // 更新URL，不刷新页面，保留source参数
             const newUrl = new URL(window.location.href);
@@ -999,6 +1074,9 @@
             newUrl.searchParams.set('url', url);
             if (sourceName) {
                 newUrl.searchParams.set('source', sourceName);
+            }
+            if (sourceCode) {
+                newUrl.searchParams.set('source_code', sourceCode);
             }
             window.history.pushState({}, '', newUrl);
             
@@ -1016,16 +1094,16 @@
                         playPromise.catch(error => {
                             console.warn('播放失败，尝试重新初始化:', error);
                             // 如果切换视频失败，重新初始化播放器
-                            initPlayer(url);
+                            initPlayer(url, sourceCode);
                         });
                     }
                 } catch (e) {
                     console.error('切换视频出错，尝试重新初始化:', e);
                     // 如果出错，重新初始化播放器
-                    initPlayer(url);
+                    initPlayer(url, sourceCode);
                 }
             } else {
-                initPlayer(url);
+                initPlayer(url, sourceCode);
             }
             
             // 更新UI
@@ -1052,6 +1130,18 @@
             if (currentEpisodeIndex < currentEpisodes.length - 1) {
                 playEpisode(currentEpisodeIndex + 1);
             }
+        }
+
+        // 复制播放链接
+        function copyLinks() {
+            // 尝试从URL中获取参数
+            const urlParams = new URLSearchParams(window.location.search);
+            const linkUrl = urlParams.get('url') || '';
+            navigator.clipboard.writeText(linkUrl).then(() => {
+                showToast('播放链接已复制', 'success');
+            }).catch(err => {
+                showToast('复制失败，请检查浏览器权限', 'error');
+            });
         }
 
         // 切换集数排序
@@ -1165,6 +1255,7 @@
             // 尝试从URL中获取参数
             const urlParams = new URLSearchParams(window.location.search);
             const sourceName = urlParams.get('source') || '';
+            const sourceCode = urlParams.get('source_code') || '';
 
             // 获取当前播放进度
             let currentPosition = 0;
@@ -1179,7 +1270,7 @@
             const videoInfo = {
                 title: currentVideoTitle,
                 // 创建基础URL，使用标题作为唯一标识符
-                url: `player.html?title=${encodeURIComponent(currentVideoTitle)}&source=${encodeURIComponent(sourceName)}`,
+                url: `player.html?title=${encodeURIComponent(currentVideoTitle)}&source=${encodeURIComponent(sourceName)}&source_code=${encodeURIComponent(sourceCode)}`,
                 episodeIndex: currentEpisodeIndex,
                 sourceName: sourceName,
                 timestamp: Date.now(),
@@ -1205,7 +1296,7 @@
                         // 存在则更新现有记录的集数、时间戳和URL
                         history[existingIndex].episodeIndex = currentEpisodeIndex;
                         history[existingIndex].timestamp = Date.now();
-						history[existingIndex].sourceName = sourceName
+                        history[existingIndex].sourceName = sourceName
                         // 更新播放进度信息
                         history[existingIndex].playbackPosition = currentPosition > 10 ? currentPosition : history[existingIndex].playbackPosition;
                         history[existingIndex].duration = videoDuration || history[existingIndex].duration;
@@ -1338,7 +1429,8 @@
                 console.error('保存播放进度失败', e);
             }
         }
-         // 设置移动端长按两倍速播放功能
+
+        // 设置移动端长按两倍速播放功能
         function setupLongPressSpeedControl() {
             if (!dp || !dp.video) return;
             
@@ -1351,7 +1443,8 @@
             function showSpeedHint(speed) {
                 showShortcutHint(`${speed}倍速`, 'right');
             }
-              // 禁用右键
+
+            // 禁用右键
             playerElement.oncontextmenu =  () => {
                 // 检测是否为移动设备
                 const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
@@ -1363,7 +1456,8 @@
                     return false;
                 }
                 return true; // 在桌面设备上允许右键菜单
-            };          
+            };
+            
             // 触摸开始事件
             playerElement.addEventListener('touchstart', function(e) {
                 // 检查视频是否正在播放，如果没有播放则不触发长按功能
@@ -1447,7 +1541,8 @@
                     longPressTimer = null;
                 }
             });
-        }       
+        }
+        
         // 清除视频进度记录
         function clearVideoProgress() {
             const progressKey = `videoProgress_${getVideoId()}`;
@@ -1463,54 +1558,6 @@
         function getVideoId() {
             // 使用视频标题和集数索引作为唯一标识
             return `${encodeURIComponent(currentVideoTitle)}_${currentEpisodeIndex}`;
-        }
-
-        // 简单的Toast消息提示函数
-        function showToast(message, type = 'error') {
-            // 如果已有Toast，先移除它
-            const existingToast = document.getElementById('custom-toast');
-            if (existingToast) {
-                document.body.removeChild(existingToast);
-            }
-            
-            // 创建新的Toast元素
-            const toast = document.createElement('div');
-            toast.id = 'custom-toast';
-            
-            // 设置Toast样式
-            toast.style.position = 'fixed';
-            toast.style.top = '20px';
-            toast.style.left = '50%';
-            toast.style.transform = 'translateX(-50%)';
-            toast.style.backgroundColor = type === 'error' ? '#f44336' : '#4caf50';
-            toast.style.color = 'white';
-            toast.style.padding = '12px 20px';
-            toast.style.borderRadius = '4px';
-            toast.style.zIndex = '10000';
-            toast.style.boxShadow = '0 2px 8px rgba(0, 0, 0, 0.3)';
-            toast.style.opacity = '0';
-            toast.style.transition = 'opacity 0.3s ease-in-out';
-            
-            // 设置Toast内容
-            toast.textContent = message;
-            
-            // 添加到页面
-            document.body.appendChild(toast);
-            
-            // 显示Toast
-            setTimeout(() => {
-                toast.style.opacity = '1';
-                
-                // 3秒后隐藏并移除
-                setTimeout(() => {
-                    toast.style.opacity = '0';
-                    setTimeout(() => {
-                        if (toast.parentNode) {
-                            document.body.removeChild(toast);
-                        }
-                    }, 300);
-                }, 3000);
-            }, 10);
         }
 
         let controlsLocked = false;
