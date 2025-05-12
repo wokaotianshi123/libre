@@ -79,11 +79,6 @@ const API_SITES = {
         api: 'https://cjhwba.com',
         name: '华为吧资源',
     },
-	    huya: {
-        api: 'https://www.huyaapi.com',
-        name: '虎牙资源',
-        detail: 'https://www.huyaapi.com',
-    },
     baidu: {
         api: 'https://api.apibdzy.com',
         name: '百度云资源'
