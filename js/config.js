@@ -1,7 +1,6 @@
 // 全局常量配置
-const PROXY_URL = '/proxy/';    // 适用于 Cloudflare, Netlify (带重写), Vercel (带重写)
-//const PROXY_URL = 'https://cfkua.wokaotianshi.eu.org/';    // 适用于 本地静态搭建
-//const HOPLAYER_URL = 'https://hoplayer.com/index.html';   // 适用于 本地静态搭建
+const PROXY_URL = 'https://cfkua.wokaotianshi.eu.org/';    // 适用于 Cloudflare, Netlify (带重写), Vercel (带重写)
+const HOPLAYER_URL = 'https://hoplayer.com/index.html';
 const SEARCH_HISTORY_KEY = 'videoSearchHistory';
 const MAX_HISTORY_ITEMS = 10;
 
@@ -22,7 +21,7 @@ const SITE_CONFIG = {
 
 // API站点配置
 const API_SITES = {
-		    dytt: {
+		    dyttzy: {
         api: 'http://caiji.dyttzyapi.com',
         name: '电影天堂',
         detail: 'http://caiji.dyttzyapi.com',
@@ -33,10 +32,10 @@ const API_SITES = {
         detail: 'https://heimuer.tv'
     },
 	    maotai: {
-                api: 'https://caiji.maotaizy.cc',
-                        name: '茅台资源',
-                                detail: 'https://caiji.maotaizy.cc'
-                                    },	
+        api: 'https://caiji.maotaizy.cc',
+        name: '茅台资源',
+        detail: 'https://caiji.maotaizy.cc'
+    },	
     ffzy: {
         api: 'http://ffzy5.tv',
         name: '非凡影视',
@@ -45,6 +44,10 @@ const API_SITES = {
     tyyszy: {
         api: 'https://tyyszy.com',
         name: '天涯资源',
+    },
+	    wujin: {
+        api: 'https://api.wujinapi.me',
+        name: '无尽资源'
     },
 		    wwdj: {
         api: 'https://api.wwzy.tv',
@@ -64,13 +67,34 @@ const API_SITES = {
         api: 'https://wolongzyw.com',
         name: '卧龙资源',
     },
-    cjhw: {
-        api: 'https://cjhwba.com',
-        name: '新华为',
+	    ikun: {
+        api: 'https://ikunzyapi.com',
+        name: 'iKun资源'
+    },
+	    suoni: {
+        api: 'https://suoniapi.com',
+        name: '索尼资源'
     },
     hwba: {
-        api: 'https://cjwba.com',
+        api: 'https://cjhwba.com',
         name: '华为吧资源',
+    },
+	    huya: {
+        api: 'https://www.huyaapi.com',
+        name: '虎牙资源',
+        detail: 'https://www.huyaapi.com',
+    },
+    baidu: {
+        api: 'https://api.apibdzy.com',
+        name: '百度云资源'
+    },
+	    zuid: {
+        api: 'https://api.zuidapi.com',
+        name: '最大资源'
+    },
+	    yinghua: {
+        api: 'https://m3u8.apiyhzy.com',
+        name: '樱花资源'
     },
     jisu: {
         api: 'https://jszyapi.com',
@@ -173,14 +197,8 @@ const API_SITES = {
 		adult: true,
         detail: 'https://www.avre06.com',
     },
-    zuid: {
-        api: 'https://api.zuidapi.com',
-        name: '最大资源'
-    },
-    suoni: {
-        api: 'https://suoniapi.com',
-        name: '索尼资源'
-    },
+
+
     yutu: {
         api: 'https://yutuzy10.com',
         name: '玉兔资源',
