@@ -6,12 +6,13 @@
     <title>LibreTV 播放器</title>
 
     <!-- Favicon -->
-    <link rel="icon" href="https://images.icon-icons.com/38/PNG/512/retrotv_5520.png">
-    <link rel="apple-touch-icon" href="https://images.icon-icons.com/38/PNG/512/retrotv_5520.png">
+    <link rel="icon" href="./image/retrotv_5520.png">
+    <link rel="apple-touch-icon" href="./image/retrotv_5520.png">
     <link rel="manifest" href="manifest.json">
 
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="js/wakelock.js"></script>
+    <script src="js/version-check.js"></script>
     <link rel="stylesheet" href="css/styles.css">
     <style>
         body, html {
@@ -349,9 +350,8 @@
         window._jsSha256 = window.sha256;
     </script>
     
-    <script src="https://s4.zstatic.net/ajax/libs/hls.js/1.5.6/hls.min.js" crossorigin="anonymous"></script>
+   <script src="https://s4.zstatic.net/ajax/libs/hls.js/1.5.6/hls.min.js" crossorigin="anonymous"></script>
     <script src="https://s4.zstatic.net/ajax/libs/dplayer/1.26.0/DPlayer.min.js"  crossorigin="anonymous"></script>
-
 
     <script src="js/config.js"></script>
     <script src="js/password.js"></script>
@@ -899,7 +899,15 @@
                     }
                 }
             });
-            
+
+            // 添加双击全屏支持
+            dp.on('playing', () => {
+                // 绑定双击事件到视频容器
+                dp.video.addEventListener('dblclick', () => {
+                    dp.fullScreen.toggle();
+                });
+            });
+
             // 10秒后如果仍在加载，但不立即显示错误
             setTimeout(function() {
                 // 如果视频已经播放开始，则不显示错误
