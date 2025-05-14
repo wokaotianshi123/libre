@@ -18,23 +18,6 @@ const toastQueue = [];
 let isShowingToast = false;
 
 function showToast(message, type = 'error') {
-    // 首先确保toast元素存在
-    let toast = document.getElementById('toast');
-    let toastMessage = document.getElementById('toastMessage');
-    
-    // 如果toast元素不存在，创建它
-    if (!toast) {
-        toast = document.createElement('div');
-        toast.id = 'toast';
-        toast.className = 'fixed top-4 left-1/2 -translate-x-1/2 px-6 py-3 rounded-lg shadow-lg transform transition-all duration-300 z-50 opacity-0';
-        
-        toastMessage = document.createElement('p');
-        toastMessage.id = 'toastMessage';
-        toast.appendChild(toastMessage);
-        
-        document.body.appendChild(toast);
-    }
-    
     // 将新的toast添加到队列
     toastQueue.push({ message, type });
     
@@ -656,12 +639,11 @@ function clearLocalStorage() {
             
             <h3 class="text-xl font-bold text-red-500 mb-4">警告</h3>
             
-            <div class="mb-0">
-                <div class="text-sm font-medium text-gray-300">确定要清除页面缓存吗？</div>
-                <div class="text-sm font-medium text-gray-300 mb-4">此功能会删除你的观看记录、自定义 API 接口和 Cookie，<scan class="text-red-500 font-bold">此操作不可恢复！</scan></div>
+            <div class="mb-4">
+                <div class="text-sm font-medium text-gray-300 mb-4">确定要清除页面缓存吗？\n此功能会同时删除你手动添加的所有自定义 API 接口，此操作不可恢复！</div>
                 <div class="flex justify-end space-x-2">
-                    <button id="confirmBoxModal" class="ml-2 bg-gray-600 hover:bg-gray-700 text-white px-4 py-1 rounded">确定</button>
-                    <button id="cancelBoxModal" class="ml-2 bg-pink-600 hover:bg-pink-700 text-white px-4 py-1 rounded">取消</button>
+                    <button id="confirmBoxModal" class="ml-2 bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded">确定</button>
+                    <button id="cancelBoxModal" class="ml-2 bg-pink-600 hover:bg-pink-700 text-white px-4 py-2 rounded">取消</button>
                 </div>
             </div>
         </div>`;
@@ -676,18 +658,7 @@ function clearLocalStorage() {
 
     // 添加事件监听器 - 确定按钮
     document.getElementById('confirmBoxModal').addEventListener('click', function () {
-        // 清除所有localStorage数据
         localStorage.clear();
-        
-        // 清除所有cookie
-        const cookies = document.cookie.split(";");
-        for (let i = 0; i < cookies.length; i++) {
-            const cookie = cookies[i];
-            const eqPos = cookie.indexOf("=");
-            const name = eqPos > -1 ? cookie.substr(0, eqPos).trim() : cookie.trim();
-            document.cookie = name + "=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/";
-        }
-        
         modal.innerHTML = `
             <div class="bg-[#191919] rounded-lg p-6 max-w-md w-full max-h-[90vh] overflow-y-auto relative">
                 <button id="closeBoxModal" class="absolute top-4 right-4 text-gray-400 hover:text-white text-xl">&times;</button>
@@ -695,7 +666,7 @@ function clearLocalStorage() {
                 <h3 class="text-xl font-bold text-white mb-4">提示</h3>
                 
                 <div class="mb-4">
-                    <div class="text-sm font-medium text-gray-300 mb-4">页面缓存和Cookie已清除，3 秒后自动刷新本页面。</div>
+                    <div class="text-sm font-medium text-gray-300 mb-4">页面缓存已清除，3 秒后自动刷新本页面。</div>
                 </div>
             </div>`;
         setTimeout(() => {
